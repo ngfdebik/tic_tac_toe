@@ -23,16 +23,30 @@ namespace Krest
                     break;
                 case 4:
                     this.wins = new List<List<int>>(){
-                                new List<int>(){ 0, 1, 2, 3 },
-                                new List<int>(){ 4, 5, 6, 7 },
-                                new List<int>(){ 8, 9, 10, 11 },
-                                new List<int>(){ 12, 13, 14, 15 },
-                                new List<int>(){ 0, 4, 8, 12 },
-                                new List<int>(){ 1, 5, 9, 13 },
-                                new List<int>(){ 2, 6, 10, 14 },
-                                new List<int>(){ 3, 7, 11, 15 },
-                                new List<int>(){ 0, 5, 10, 15 },
-                                new List<int>(){ 3, 6, 9, 12 }
+                                new List<int>(){ 0, 1, 2 },
+                                new List<int>(){ 1, 2, 3 },
+                                new List<int>(){ 4, 5, 6 },
+                                new List<int>(){ 5, 6, 7 },
+                                new List<int>(){ 8, 9, 10 },
+                                new List<int>(){ 9, 10, 11 },
+                                new List<int>(){ 12, 13, 14 },
+                                new List<int>(){ 13, 14, 15 },
+                                new List<int>(){ 0, 4, 8 },
+                                new List<int>(){ 4, 8, 12 },
+                                new List<int>(){ 1, 5, 9},
+                                new List<int>(){ 5, 9, 13 },
+                                new List<int>(){ 2, 6, 10 },
+                                new List<int>(){ 6, 10, 14 },
+                                new List<int>(){ 3, 7, 11 },
+                                new List<int>(){ 7, 11, 15 },
+                                new List<int>(){ 0, 5, 10 },
+                                new List<int>(){ 5, 10, 15 },
+                                new List<int>(){ 3, 6, 9 },
+                                new List<int>(){ 6, 9, 12 },
+                                new List<int>(){ 4, 9, 14 },
+                                new List<int>(){ 1, 6, 11 },
+                                new List<int>(){ 2, 5, 8 },
+                                new List<int>(){ 7, 10, 13 }
                     };
                     break;
                 case 5:

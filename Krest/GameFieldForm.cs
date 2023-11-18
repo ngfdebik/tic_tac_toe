@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Windows.Forms;
 
 namespace Krest
@@ -73,29 +75,40 @@ namespace Krest
             }
 
         }
-        private void isEnd()
+        private bool isEnd()
         {
             if(ai.IsWin(GameField, ai.human))
             {
                 MessageBoxButtons Mbutton = MessageBoxButtons.OK;
                 DialogResult result;
                 result = MessageBox.Show("End", "Крестики победили", Mbutton);
+                return true;
             }
             else if (ai.IsWin(GameField, ai.Aiplayer))
             {
                 MessageBoxButtons Mbutton = MessageBoxButtons.OK;
                 DialogResult result;
                 result = MessageBox.Show("End", "Нолики победили", Mbutton);
+                return true;
             }
+            else if (!GameField.Contains(-1))
+            {
+                MessageBoxButtons Mbutton = MessageBoxButtons.OK;
+                DialogResult result;
+                result = MessageBox.Show("End", "Ничья", Mbutton);
+                return true;
+            }
+            return false;
         }
 
         private void ButtonClickMachine(object sender, EventArgs e)
         {
             HumanMove(sender, ai.human, GameConfig.Player.ToString());
-            isEnd();
-            MachineMove(ai);
-            isEnd();
-
+            if (!isEnd())
+            {
+                MachineMove(ai);
+                isEnd();
+            }
         }
         private void MachineMove(AI ai)
         {

@@ -7,13 +7,15 @@ namespace Krest
     public class AI
     {
         public string Side;
-        private static Dictionary<int, int> cahe = new Dictionary<int, int>();
+        private static Dictionary<string, int> cahe1 = new Dictionary<string, int>();
+        private static Dictionary<string, int> cahe2 = new Dictionary<string, int>();
         private int Size;
         public int None = -1;
-        public int human = 325;
+        public int human = 1000;
         public int Aiplayer = 1;
-        private static int depth;
+        private int depth;
         private int DepthIncrement;
+        //private int BestScore = -10000;
         public AI(Player player, int Size)
         {
             if (player == Player.O)
@@ -24,36 +26,42 @@ namespace Krest
             switch(Size)
             {
                 case 3:
-                    depth = 15;
-                    DepthIncrement = 1;
+                    this.depth = 15;
+                    this.DepthIncrement = 1;
                     break;
                 case 4:
-                    depth = 15;
-                    DepthIncrement = 1;
+                    this.depth = 10;
+                    this.DepthIncrement = 1;
                     break;
                 case 5:
-                    depth = 15;
-                    DepthIncrement = 1;
+                    this.depth = 15;
+                    this.DepthIncrement = 1;
                     break;
 
             }
         }
 
-        public int hachFunction(int[] GameField)
+        public string hachFunction(int[] GameField)
         {
-            int result = 0;
+            int result1 = 0;
+            int result2 = 0;
+            int count1 = 0;
+            int count2 = 0;
+            string tmp = this.Size.ToString() + this.Side + ':';
             for(int i = 0; i < GameField.Length; i++)
             {
                 if (GameField[i] == Aiplayer)
                 {
-                    result += i;
+                    result1 = (i+1);
+                    tmp += result1.ToString() + 'X';
                 }
                 else if (GameField[i] == human)
                 {
-                    result += (i * human);
+                    result2 = ((i+1) * human);
+                    tmp += result2.ToString() + 'O';
                 }
             }
-            return result;
+            return tmp;
         }
 
         public List<int> walk(int[] GameField)
@@ -69,140 +77,116 @@ namespace Krest
 
         public int AiMove(int[] GameField)
         {
-            if (cahe.ContainsKey(hachFunction(GameField)))
+/*            if (cahe.ContainsKey(hachFunction(GameField)))
             {
                 return cahe[hachFunction(GameField)];
-            }
+            }*/
             int Move = None;
-            int BestScore = -10000;
+            int BestScore1 = -1000;
             int score;
-            int hachIndex = 0;
+            //string hachIndex = "";
             int alpha = -100;
             int beta = 100;
             List<int> Walks = walk(GameField);
             for (int i = 0; i < Walks.Count; i++)
             {
                 GameField[Walks[i]] = Aiplayer;
-                score = MiniMax(GameField, depth,/* beta, alpha,*/ false);
-                hachIndex = hachFunction(GameField);
+                score = MiniMax(GameField, this.depth, beta, alpha, false);
+                //hachIndex = hachFunction(GameField);
                 GameField[Walks[i]] = -1;
-                if (score < BestScore)
+                if (score > BestScore1)
                 {
-                    BestScore = score;
+                    BestScore1 = score;
                     Move = Walks[i];
                 }
             }
+            if(Move == None)
+            {
+                Move = Walks[0];
+            }
+
             depth += DepthIncrement;
-            if (!cahe.ContainsKey(hachIndex))
+/*            if (!cahe.ContainsKey(hachIndex))
             {
                 cahe.Add(hachIndex, Move);
-            }
-            Console.WriteLine(Move);
+            }*/
+            /*Console.WriteLine(Move);*/
             return Move;
         }
 
-        private int MiniMax(int[] field, int depth, /*int beta, int alpha,*/ bool isMaximasing)
+        private int MiniMax(int[] field, int depth, int beta, int alpha, bool isMaximasing)
         {
             //Console.WriteLine('q');
-            if (cahe.ContainsKey(hachFunction(field)))
-            {
-                return cahe[hachFunction(field)];
-            }
-            if (IsWin(field, human))
-                return - 50 + depth;
-            else if (IsWin(field, Aiplayer))
-                return 50 + depth;
-            else if (!field.Contains(None) || depth == 0)
-                return depth;
-
-            int hachIndex = 0;
 
 
-            int BestScore = -100000;
-            int Move = 0;
-            int score = BestScore;
             List<int> Walks = walk(field);
+            if (IsWin(field, human))
+                return -100 + depth;
+            else if (IsWin(field, Aiplayer))
+                return 100 - depth;
+            else if (Walks.Count == 0 || depth == 0)
+                return 0;
 
-            if (isMaximasing) 
+            string hachIndex = "";
+            int[] tmp = new int[field.Length];
+            int BestScore2 = 0;
+
+            //int Move = 0;
+            int score = BestScore2;
+
+            if (isMaximasing)
             {
+                if (cahe1.ContainsKey(hachIndex))
+                {
+                    return cahe1[hachIndex];
+                }
+                BestScore2 = -1000;
                 for (int i = 0; i < Walks.Count; i++)
-                { 
+                {
+                    
                     field[Walks[i]] = Aiplayer;
-                    score = MiniMax(field, depth,/* beta, alpha,*/ false);
+                    score = MiniMax(field, depth-1, beta, alpha, false);
+                    BestScore2 = Math.Max(BestScore2, score);
+                    //field.CopyTo(tmp, 0);
                     hachIndex = hachFunction(field);
-                    Move = Walks[i];
                     field[Walks[i]] = None;
-                    if (score > BestScore)
-                    {
-                        BestScore = score;
-                        Move = Walks[i];
-                    }
-                    /*
-                    if (alpha <= beta)
-                    {
-                        if (!cahe.ContainsKey(hachIndex))
-                        {
-                            cahe.Add(hachIndex, alpha);
-                            return alpha;
-                            //return cahe[hachIndex];
-                        }
-                        return alpha;
-                    }*/
+                    alpha = Math.Max(alpha, score);
+                    if (beta <= alpha)
+                        break;
                 }
-                /*
-                if (!cahe.ContainsKey(hachIndex))
+                //hachIndex = hachFunction(field);
+                if (!cahe1.ContainsKey(hachIndex))
                 {
-                    cahe.Add(hachIndex, alpha);
-                    return alpha;
-                    //return cahe[hachIndex];
-                }*/
-                if (!cahe.ContainsKey(hachIndex))
-                {
-                    cahe.Add(hachIndex, Move);
+                    cahe1.Add(hachIndex, BestScore2);
                 }
-                return score;
+                return BestScore2;
             }
             else
             {
+                if (cahe2.ContainsKey(hachIndex))
+                {
+                    return cahe2[hachIndex];
+                }
+                BestScore2 = 1000;
                 for (int i = 0; i < Walks.Count; i++)
                 {
+                    
                     field[Walks[i]] = human;
-                    score = MiniMax(field, depth,/* beta, alpha,*/true);
+                    score = MiniMax(field, depth-1, beta, alpha, true);
+                    BestScore2 = Math.Min(BestScore2, score);
+                    //field.CopyTo(tmp, 0);
                     hachIndex = hachFunction(field);
-                    Move = Walks[i];
                     field[Walks[i]] = None;
-                    if (score < BestScore)
-                    {
-                        BestScore = score;
-                        Move = Walks[i];
-                    }
-                    /*
-                    if (alpha >= beta)
-                    {
-                        if (!cahe.ContainsKey(hachIndex))
-                        {
-                            cahe.Add(hachIndex, beta);
-                            return beta;
-                            //return cahe[hachIndex];
-                        }
-                        return beta;
-                    }
-                    */
-
+                    beta = Math.Min(beta, score);
+                    if (beta <= alpha)
+                        break;
                 }
-                /*
-                if (!cahe.ContainsKey(hachIndex))
+                //hachIndex = hachFunction(field);
+                if (!cahe2.ContainsKey(hachIndex))
                 {
-                    cahe.Add(hachIndex, beta);
-                    return beta;
-                    //return cahe[hachIndex];
+                    cahe2.Add(hachIndex, BestScore2);
                 }
-                */
-                if (!cahe.ContainsKey(hachIndex))
-                {
-                    cahe.Add(hachIndex, Move);
-                }
-                return score;
+                return BestScore2;
             }
         }
 
